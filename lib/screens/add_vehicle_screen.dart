@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AddVehicleScreen extends StatefulWidget {
   const AddVehicleScreen({super.key});
@@ -17,6 +18,9 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   final _placaController = TextEditingController();
   bool _isLoading = false;
 
+  // Ubicación por defecto según tu DB (0,0)
+  final LatLng _defaultLocation = LatLng(0, 0);
+
   Future<void> _guardarVehiculo() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -26,11 +30,12 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         await FirebaseFirestore.instance.collection('vehiculos').add({
-          'uid_usuario': user.uid, // Vincula el vehículo al usuario
           'marca': _marcaController.text.trim(),
           'modelo': _modeloController.text.trim(),
-          'año': int.parse(_anioController.text.trim()), // Convertir a número
-          'placa': _placaController.text.trim().toUpperCase(), // Ej: ABC123
+          'anio': _anioController.text.trim(),
+          'placa': _placaController.text.trim(),
+          'uid_usuario': user.uid,
+          'location': GeoPoint(_defaultLocation.latitude, _defaultLocation.longitude),
           'fecha_creacion': FieldValue.serverTimestamp(),
         });
 
@@ -38,7 +43,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Vehículo registrado exitosamente!')),
           );
-          Navigator.of(context).pop(); // Regresar a la pantalla anterior
+          Navigator.of(context).pop();
         }
       }
     } on FirebaseException catch (e) {
@@ -58,6 +63,15 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _marcaController.dispose();
+    _modeloController.dispose();
+    _anioController.dispose();
+    _placaController.dispose();
+    super.dispose();
   }
 
   @override
@@ -87,9 +101,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 decoration: InputDecoration(
                   labelText: 'Marca',
                   prefixIcon: const Icon(Icons.directions_car),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -104,9 +116,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 decoration: InputDecoration(
                   labelText: 'Modelo',
                   prefixIcon: const Icon(Icons.model_training),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -122,9 +132,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 decoration: InputDecoration(
                   labelText: 'Año',
                   prefixIcon: const Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -142,16 +150,11 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 decoration: InputDecoration(
                   labelText: 'Placa',
                   prefixIcon: const Icon(Icons.confirmation_number),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Ingresa la placa del vehículo';
-                  }
-                  if (value.length < 6) {
-                    return 'La placa debe tener al menos 6 caracteres';
                   }
                   return null;
                 },
@@ -161,9 +164,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
                 onPressed: _isLoading ? null : _guardarVehiculo,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator()
@@ -174,14 +175,5 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _marcaController.dispose();
-    _modeloController.dispose();
-    _anioController.dispose();
-    _placaController.dispose();
-    super.dispose();
   }
 }
