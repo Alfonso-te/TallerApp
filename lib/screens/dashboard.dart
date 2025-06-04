@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:taller_mecanico/screens/vehicle_detail.screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -10,7 +11,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   GoogleMapController? mapController;
-  LatLng? currentLocation = LatLng(0, 0); // Actualizado a 0,0 según tu DB
+  LatLng? currentLocation = LatLng(0, 0);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -52,7 +53,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
           actions: [
-            TextButton(child: Text('Cancelar'), onPressed: () => Navigator.pop(context)),
+            TextButton(
+              child: Text('Cancelar'),
+              onPressed: () => Navigator.pop(context),
+            ),
             ElevatedButton(
               child: Text(vehicleToEdit == null ? 'Guardar' : 'Actualizar'),
               onPressed: () async {
@@ -113,16 +117,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () => _showVehicleForm(),
-          )
+          ),
         ],
       ),
       drawer: _buildDrawer(),
       body: StreamBuilder<List<Vehicle>>(
         stream: _getVehiclesStream(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) return Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) return Center(child: Text('No hay vehículos registrados.'));
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No hay vehículos registrados.'));
+          }
 
           final vehicles = snapshot.data!;
 
@@ -133,12 +141,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 height: 300,
                 child: GoogleMap(
                   onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(target: currentLocation!, zoom: 2),
+                  initialCameraPosition: CameraPosition(
+                    target: currentLocation!,
+                    zoom: 2,
+                  ),
                   markers: vehicles
                       .map((v) => Marker(
                             markerId: MarkerId(v.id),
                             position: v.location,
-                            infoWindow: InfoWindow(title: v.marca, snippet: v.modelo),
+                            infoWindow: InfoWindow(
+                              title: v.marca,
+                              snippet: v.modelo,
+                            ),
                           ))
                       .toSet(),
                 ),
@@ -206,7 +220,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             title: Text('Configuración'),
             onTap: () {
               Navigator.pop(context);
-              // Navegar a pantalla de configuración
             },
           ),
           Divider(),
@@ -229,11 +242,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: ListTile(
         title: Text('${vehicle.marca} ${vehicle.modelo}'),
         subtitle: Text('${vehicle.anio} - ${vehicle.placa}'),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VehicleDetailScreen(vehicleId: vehicle.id),
+            ),
+          );
+        },
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(icon: Icon(Icons.edit), onPressed: () => _showVehicleForm(vehicleToEdit: vehicle)),
-            IconButton(icon: Icon(Icons.delete), onPressed: () => _deleteVehicle(vehicle.id)),
+            IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () => _showVehicleForm(vehicleToEdit: vehicle),
+            ),
+            IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () => _deleteVehicle(vehicle.id),
+            ),
           ],
         ),
       ),
