@@ -5,6 +5,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:taller_mecanico/screens/vehicle_detail.screen.dart';
 
 class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
 }
@@ -137,7 +139,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return ListView(
             padding: EdgeInsets.all(16),
             children: [
-              Container(
+              SizedBox(
                 height: 300,
                 child: GoogleMap(
                   onMapCreated: _onMapCreated,
@@ -158,7 +160,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               SizedBox(height: 16),
-              ...vehicles.map((v) => _buildVehicleCard(v)).toList(),
+              ...vehicles.map((v) => _buildVehicleCard(v)),
             ],
           );
         },
