@@ -27,19 +27,35 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         .get();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+  Future<void> _selectDateTime(BuildContext context) async {
+  // 1. Seleccionar fecha
+  final DateTime? pickedDate = await showDatePicker(
+    context: context,
+    initialDate: _selectedDate ?? DateTime.now(),
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2100),
+  );
+
+  if (pickedDate != null) {
+    // 2. Seleccionar hora
+    final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      initialTime: TimeOfDay.fromDateTime(_selectedDate ?? DateTime.now()),
     );
-    if (picked != null && picked != _selectedDate) {
+
+    if (pickedTime != null) {
       setState(() {
-        _selectedDate = picked;
+        _selectedDate = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
       });
     }
   }
+}
 
   Future<void> _addMaintenance() async {
     if (_servicioController.text.isEmpty || _selectedDate == null) return;
@@ -154,20 +170,20 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                 ),
                 const SizedBox(height: 16),
                 InkWell(
-                  onTap: () => _selectDate(context),
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: 'Fecha',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.calendar_today),
-                    ),
-                    child: Text(
-                      _selectedDate != null
-                          ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                          : 'Seleccionar fecha',
-                    ),
-                  ),
+              onTap: () => _selectDateTime(context), // Usa el nuevo método
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: 'Fecha y hora',
+                  prefixIcon: Icon(Icons.calendar_today),
+                  border: OutlineInputBorder(),
                 ),
+                child: Text(
+                  _selectedDate != null 
+                      ? DateFormat('dd/MM/yyyy HH:mm').format(_selectedDate!)
+                      : 'Seleccionar fecha y hora',
+                ),
+              ),
+            ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _addMaintenance,
@@ -181,6 +197,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                 const SizedBox(height: 8),
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
+                  
                       .collection('vehiculos')
                       .doc(widget.vehicleId)
                       .collection('mantenimientos')
@@ -208,7 +225,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
                             title: Text(data['servicio']),
-                            subtitle: Text(DateFormat('dd/MM/yyyy').format(fecha)),
+                            subtitle: Text(DateFormat('dd/MM/yyyy HH:mm').format(fecha)),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete),
                               onPressed: () => doc.reference.delete(),
