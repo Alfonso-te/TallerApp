@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:taller_mecanico/screens/add_vehicle_screen.dart';
+import 'package:taller_mecanico/Funcionalidad/notification_service.dart';
+import 'screens/add_vehicle_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -9,10 +10,16 @@ import 'conexion/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Inicializar Firebase
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform, // Usa la configuración general
+    options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  
+  // Inicializar notificaciones
+  await NotificationService().initialize();
+  
+  runApp(const MyApp()); // Agregué const aquí
 }
  
 class MyApp extends StatelessWidget {
@@ -31,8 +38,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
-        '/dashboard': (context) =>  DashboardScreen(),
-        '/add-vehicle' :(context) => const AddVehicleScreen(),
+        '/dashboard': (context) => const DashboardScreen(), // Agregué const aquí
+        '/add-vehicle': (context) => const AddVehicleScreen(),
       },
     );
   }

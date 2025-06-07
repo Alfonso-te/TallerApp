@@ -15,34 +15,242 @@
     the `--base-href` argument provided to `flutter build`.
   -->
   <base href="$FLUTTER_BASE_HREF">
-  <!DOCTYPE html>
-<html>
-<head>
   
   <meta charset="UTF-8">
-  <title>Taller Mecánico</title>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDP38vh5t0QoE9F7uKZ8y32m8OvncagD5k&callback=initMap&libraries=places" async defer></script>
-
-</head>
-<body>
-  <script src="main.dart.js" type="application/javascript"></script>
-</body>
-</html>
-  <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="Taller Mecánico - Sistema de gestión de mantenimientos">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="taller_mecanico">
+  <meta name="apple-mobile-web-app-title" content="Taller Mecánico">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>taller_mecanico</title>
+  <title>Taller Mecánico</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDP38vh5t0QoE9F7uKZ8y32m8OvncagD5k&callback=initMap&libraries=places" async defer></script>
+
+  <!-- FUNCIONES MEJORADAS PARA NOTIFICACIONES WEB -->
+  <script>
+    // Registrar Service Worker para notificaciones
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('flutter-first-frame', function () {
+        navigator.serviceWorker.register('flutter_service_worker.js');
+      });
+    }
+
+    // Función para solicitar permisos de notificación
+    async function requestNotificationPermission() {
+      if ('Notification' in window) {
+        if (Notification.permission === 'default') {
+          const permission = await Notification.requestPermission();
+          console.log('Permiso de notificación:', permission);
+          return permission === 'granted';
+        }
+        return Notification.permission === 'granted';
+      }
+      return false;
+    }
+
+    // Función principal para mostrar notificaciones web
+    function showWebNotification(title, body, icon) {
+      console.log('Intentando mostrar notificación:', title, body);
+      
+      // Verificar si el navegador soporta notificaciones
+      if (!('Notification' in window)) {
+        console.log('Este navegador no soporta notificaciones');
+        showInAppNotification(title, body);
+        return false;
+      }
+
+      // Verificar permisos
+      if (Notification.permission === 'granted') {
+        try {
+          // Crear la notificación
+          const notification = new Notification(title, {
+            body: body,
+            icon: icon || 'icons/Icon-192.png',
+            badge: 'icons/Icon-192.png',
+            vibrate: [200, 100, 200],
+            timestamp: Date.now(),
+            requireInteraction: false,
+            silent: false,
+            tag: 'taller-mecanico-' + Date.now() // Evitar duplicados
+          });
+
+          // Auto-cerrar después de 5 segundos
+          setTimeout(() => {
+            notification.close();
+          }, 5000);
+
+          // Eventos de la notificación
+          notification.onclick = function(event) {
+            event.preventDefault();
+            window.focus();
+            notification.close();
+          };
+
+          notification.onerror = function(event) {
+            console.error('Error en la notificación:', event);
+            showInAppNotification(title, body);
+          };
+
+          console.log('Notificación mostrada exitosamente');
+          return true;
+        } catch (error) {
+          console.error('Error creando notificación:', error);
+          showInAppNotification(title, body);
+          return false;
+        }
+      } else if (Notification.permission === 'default') {
+        // Solicitar permisos si no están definidos
+        Notification.requestPermission().then(function(permission) {
+          console.log('Nuevo permiso:', permission);
+          if (permission === 'granted') {
+            showWebNotification(title, body, icon);
+          } else {
+            showInAppNotification(title, body);
+          }
+        });
+      } else {
+        // Permisos denegados - mostrar notificación alternativa
+        console.log('Permisos de notificación denegados');
+        showInAppNotification(title, body);
+      }
+      
+      return false;
+    }
+
+    // Función alternativa para mostrar notificaciones dentro de la app
+    function showInAppNotification(title, body) {
+      console.log('Mostrando notificación in-app:', title, body);
+      
+      // Crear elemento de notificación en la página
+      const notificationDiv = document.createElement('div');
+      notificationDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        z-index: 10000;
+        max-width: 350px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+        animation: slideIn 0.3s ease-out;
+        cursor: pointer;
+      `;
+      
+      // Agregar animación CSS
+      if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+          @keyframes slideIn {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+          @keyframes slideOut {
+            from {
+              transform: translateX(0);
+              opacity: 1;
+            }
+            to {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+      
+      notificationDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="font-size: 20px;">🔔</div>
+          <div>
+            <strong style="display: block; margin-bottom: 4px;">${title}</strong>
+            <div style="opacity: 0.9;">${body}</div>
+          </div>
+          <div style="margin-left: auto; cursor: pointer; font-size: 18px; opacity: 0.7;">×</div>
+        </div>
+      `;
+      
+      document.body.appendChild(notificationDiv);
+      
+      // Manejar click para cerrar
+      notificationDiv.onclick = function() {
+        notificationDiv.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+          if (notificationDiv.parentNode) {
+            notificationDiv.parentNode.removeChild(notificationDiv);
+          }
+        }, 300);
+      };
+      
+      // Auto-remover después de 6 segundos
+      setTimeout(() => {
+        if (notificationDiv.parentNode) {
+          notificationDiv.style.animation = 'slideOut 0.3s ease-out';
+          setTimeout(() => {
+            if (notificationDiv.parentNode) {
+              notificationDiv.parentNode.removeChild(notificationDiv);
+            }
+          }, 300);
+        }
+      }, 6000);
+    }
+
+    function testNotification() {
+  if (!("Notification" in window)) {
+    console.error("Este navegador no soporta notificaciones.");
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    if (perm === "granted") {
+      new Notification("¡Prueba exitosa!", { body: "Esta es una notificación de prueba." });
+    }
+  });
+}
+
+    // Inicializar cuando se carga la página
+    window.addEventListener('load', function() {
+      console.log('Inicializando sistema de notificaciones...');
+      requestNotificationPermission().then(function(granted) {
+        if (granted) {
+          console.log('✅ Permisos de notificación concedidos');
+        } else {
+          console.log('⚠️ Permisos de notificación no concedidos - usando notificaciones in-app');
+        }
+      });
+    });
+
+    // Hacer las funciones disponibles globalmente para Flutter
+    window.showWebNotification = showWebNotification;
+    window.requestNotificationPermission = requestNotificationPermission;
+    window.testNotification = testNotification;
+
+    // Evento cuando Flutter está listo
+    window.addEventListener('flutter-first-frame', function() {
+      console.log('Flutter cargado - Sistema de notificaciones listo');
+    });
+  </script>
+  <!-- FIN DE FUNCIONES DE NOTIFICACIONES -->
+
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
