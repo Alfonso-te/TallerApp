@@ -216,7 +216,7 @@ class NotificationService {
         priority: Priority.high,
         ticker: 'Vehículo registrado',
         icon: '@mipmap/ic_launcher',
-        color: Color(0xFF4CAF50),
+        color: Color.fromARGB(255, 126, 34, 168),
         enableVibration: true,
         playSound: true,
       );
@@ -225,7 +225,7 @@ class NotificationService {
           NotificationDetails(android: androidPlatformChannelSpecifics);
 
       await flutterLocalNotificationsPlugin.show(
-        DateTime.now().millisecondsSinceEpoch.remainder(100000) + 2,
+        DateTime.now().millisecondsSinceEpoch.remainder(1) + 2,
         '🚗 Vehículo Registrado',
         '$marca $modelo (Placa: $placa) registrado exitosamente',
         platformChannelSpecifics,
