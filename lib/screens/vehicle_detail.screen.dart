@@ -16,6 +16,8 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   final _observacionesController = TextEditingController();
   final _servicioController = TextEditingController();
   DateTime? _selectedDate;
+  final Color _goldColor = Color(0xFFD4AF37);
+  final Color _darkColor = Colors.grey[900]!;
 
   @override
   void initState() {
@@ -35,13 +37,13 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Theme.of(context).primaryColor,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
+            colorScheme: ColorScheme.dark(
+              primary: _goldColor,
+              onPrimary: Colors.black,
+              surface: _darkColor,
+              onSurface: _goldColor,
             ),
-            dialogBackgroundColor: Colors.white,
+            dialogBackgroundColor: _darkColor,
           ),
           child: child!,
         );
@@ -55,13 +57,13 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: Theme.of(context).primaryColor,
-                onPrimary: Colors.white,
-                surface: Colors.white,
-                onSurface: Colors.black,
+              colorScheme: ColorScheme.dark(
+                primary: _goldColor,
+                onPrimary: Colors.black,
+                surface: _darkColor,
+                onSurface: _goldColor,
               ),
-              dialogBackgroundColor: Colors.white,
+              dialogBackgroundColor: _darkColor,
             ),
             child: child!,
           );
@@ -87,9 +89,11 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Por favor completa todos los campos'),
+          backgroundColor: _goldColor,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: _goldColor),
           ),
         ),
       );
@@ -121,6 +125,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: _goldColor),
           ),
         ),
       );
@@ -132,6 +137,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
+            side: BorderSide(color: _goldColor),
           ),
         ),
       );
@@ -147,17 +153,24 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Detalles del Vehículo'),
+        title: Text(
+          'DETALLES DEL VEHÍCULO',
+          style: TextStyle(
+            color: _goldColor,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: _goldColor),
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.share),
+            icon: Icon(Icons.share, color: _goldColor),
             onPressed: () {
               // Implementar funcionalidad de compartir
             },
@@ -172,11 +185,11 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
+                  CircularProgressIndicator(color: _goldColor),
                   SizedBox(height: 16),
                   Text(
                     'Cargando información del vehículo...',
-                    style: theme.textTheme.bodyMedium,
+                    style: TextStyle(color: _goldColor),
                   ),
                 ],
               ),
@@ -192,13 +205,17 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                   SizedBox(height: 16),
                   Text(
                     'Vehículo no encontrado',
-                    style: theme.textTheme.headlineSmall,
+                    style: TextStyle(
+                      color: _goldColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(height: 8),
                   Text(
                     'El ID proporcionado no corresponde a ningún vehículo registrado',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium,
+                    style: TextStyle(color: Colors.white70),
                   ),
                 ],
               ),
@@ -215,9 +232,11 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               children: [
                 // Tarjeta de información del vehículo
                 Card(
-                  elevation: 2,
+                  elevation: 4,
+                  color: _darkColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: _goldColor, width: 1),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -226,12 +245,14 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.directions_car, size: 32, color: theme.primaryColor),
+                            Icon(Icons.directions_car, size: 32, color: _goldColor),
                             SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 '${vehicle['marca']} ${vehicle['modelo']}',
-                                style: theme.textTheme.headlineSmall?.copyWith(
+                                style: TextStyle(
+                                  color: _goldColor,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -256,8 +277,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
 
                 // Sección de observaciones
                 Text(
-                  'Observaciones',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  'OBSERVACIONES',
+                  style: TextStyle(
+                    color: _goldColor,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -265,16 +288,24 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                 TextField(
                   controller: _observacionesController,
                   maxLines: 3,
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Agrega observaciones sobre el vehículo...',
+                    hintStyle: TextStyle(color: Colors.white54),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(
-                        color: isDarkMode ? Colors.grey[700]! : Colors.grey[400]!,
-                      ),
+                      borderSide: BorderSide(color: _goldColor),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _goldColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _goldColor, width: 2),
                     ),
                     filled: true,
-                    fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+                    fillColor: _darkColor,
                     contentPadding: EdgeInsets.all(16),
                   ),
                 ),
@@ -282,22 +313,35 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
 
                 // Sección de programar mantenimiento
                 Text(
-                  'Programar mantenimiento',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  'PROGRAMAR MANTENIMIENTO',
+                  style: TextStyle(
+                    color: _goldColor,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 16),
                 TextField(
                   controller: _servicioController,
+                  style: TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: 'Servicio',
+                    labelStyle: TextStyle(color: _goldColor),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _goldColor),
                     ),
-                    prefixIcon: Icon(Icons.build),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _goldColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: _goldColor, width: 2),
+                    ),
+                    prefixIcon: Icon(Icons.build, color: _goldColor),
                     filled: true,
-                    fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+                    fillColor: _darkColor,
                   ),
                 ),
                 SizedBox(height: 16),
@@ -306,18 +350,28 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                   child: InputDecorator(
                     decoration: InputDecoration(
                       labelText: 'Fecha y hora',
-                      prefixIcon: Icon(Icons.calendar_today),
+                      labelStyle: TextStyle(color: _goldColor),
+                      prefixIcon: Icon(Icons.calendar_today, color: _goldColor),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: _goldColor),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: _goldColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: _goldColor, width: 2),
                       ),
                       filled: true,
-                      fillColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+                      fillColor: _darkColor,
                     ),
                     child: Text(
                       _selectedDate != null 
                           ? DateFormat('dd/MM/yyyy HH:mm').format(_selectedDate!)
                           : 'Seleccionar fecha y hora',
-                      style: theme.textTheme.bodyMedium,
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
@@ -327,6 +381,8 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                   child: ElevatedButton(
                     onPressed: _addMaintenance,
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: _goldColor,
+                      foregroundColor: Colors.black,
                       padding: EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -334,7 +390,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                     ),
                     child: Text(
                       'AGENDAR MANTENIMIENTO',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -344,14 +403,16 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                 Row(
                   children: [
                     Text(
-                      'Historial de mantenimientos',
-                      style: theme.textTheme.titleLarge?.copyWith(
+                      'HISTORIAL DE MANTENIMIENTOS',
+                      style: TextStyle(
+                        color: _goldColor,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Spacer(),
                     IconButton(
-                      icon: Icon(Icons.refresh),
+                      icon: Icon(Icons.refresh, color: _goldColor),
                       onPressed: () {
                         setState(() {
                           _vehicleFuture = FirebaseFirestore.instance
@@ -376,7 +437,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                       return Center(
                         child: Padding(
                           padding: EdgeInsets.symmetric(vertical: 16),
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(color: _goldColor),
                         ),
                       );
                     }
@@ -385,14 +446,18 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                       return Container(
                         padding: EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+                          color: _darkColor,
                           borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: _goldColor),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.info_outline, color: theme.primaryColor),
+                            Icon(Icons.info_outline, color: _goldColor),
                             SizedBox(width: 12),
-                            Text('No hay mantenimientos registrados'),
+                            Text(
+                              'No hay mantenimientos registrados',
+                              style: TextStyle(color: Colors.white70),
+                            ),
                           ],
                         ),
                       );
@@ -402,7 +467,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: snapshot.data!.docs.length,
-                      separatorBuilder: (context, index) => Divider(height: 1),
+                      separatorBuilder: (context, index) => Divider(
+                        color: _goldColor.withOpacity(0.3),
+                        height: 1,
+                      ),
                       itemBuilder: (context, index) {
                         final doc = snapshot.data!.docs[index];
                         final data = doc.data() as Map<String, dynamic>;
@@ -411,7 +479,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                         return Dismissible(
                           key: Key(doc.id),
                           background: Container(
-                            color: Colors.red,
+                            color: Colors.red[900],
                             alignment: Alignment.centerRight,
                             padding: EdgeInsets.only(right: 20),
                             child: Icon(Icons.delete, color: Colors.white),
@@ -421,16 +489,29 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                             return await showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: Text('Confirmar eliminación'),
-                                content: Text('¿Estás seguro de eliminar este mantenimiento?'),
+                                backgroundColor: _darkColor,
+                                title: Text(
+                                  'Confirmar eliminación',
+                                  style: TextStyle(color: _goldColor),
+                                ),
+                                content: Text(
+                                  '¿Estás seguro de eliminar este mantenimiento?',
+                                  style: TextStyle(color: Colors.white70),
+                                ),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.of(context).pop(false),
-                                    child: Text('Cancelar'),
+                                    child: Text(
+                                      'Cancelar',
+                                      style: TextStyle(color: _goldColor),
+                                    ),
                                   ),
                                   TextButton(
                                     onPressed: () => Navigator.of(context).pop(true),
-                                    child: Text('Eliminar', style: TextStyle(color: Colors.red)),
+                                    child: Text(
+                                      'Eliminar',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -439,8 +520,9 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                           onDismissed: (direction) => doc.reference.delete(),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: isDarkMode ? Colors.grey[800] : Colors.white,
+                              color: _darkColor,
                               borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: _goldColor.withOpacity(0.5)),
                             ),
                             child: ListTile(
                               contentPadding: EdgeInsets.symmetric(
@@ -451,27 +533,28 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                                 width: 40,
                                 height: 40,
                                 decoration: BoxDecoration(
-                                  color: theme.primaryColor.withOpacity(0.2),
+                                  color: _goldColor.withOpacity(0.2),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   Icons.build,
-                                  color: theme.primaryColor,
+                                  color: _goldColor,
                                 ),
                               ),
                               title: Text(
                                 data['servicio'],
-                                style: theme.textTheme.bodyLarge?.copyWith(
+                                style: TextStyle(
+                                  color: _goldColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               subtitle: Text(
                                 DateFormat('dd/MM/yyyy HH:mm').format(fecha),
-                                style: theme.textTheme.bodySmall,
+                                style: TextStyle(color: Colors.white70),
                               ),
                               trailing: Icon(
                                 Icons.chevron_right,
-                                color: Colors.grey,
+                                color: _goldColor,
                               ),
                               onTap: () {
                                 // Implementar vista detallada del mantenimiento
@@ -492,8 +575,6 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   }
 
   Widget _buildInfoRow(String label, String value, IconData icon, {bool secondary = false}) {
-    final theme = Theme.of(context);
-    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
@@ -501,20 +582,20 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
           Icon(
             icon,
             size: 20,
-            color: secondary ? Colors.grey : theme.primaryColor,
+            color: secondary ? Colors.grey : _goldColor,
           ),
           SizedBox(width: 12),
           Text(
             '$label: ',
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: secondary ? Colors.grey : null,
+              color: secondary ? Colors.grey : _goldColor,
             ),
           ),
           Text(
             value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: secondary ? Colors.grey : null,
+            style: TextStyle(
+              color: secondary ? Colors.grey : Colors.white70,
             ),
           ),
         ],
