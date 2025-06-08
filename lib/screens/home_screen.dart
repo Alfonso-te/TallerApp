@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 
@@ -8,148 +7,223 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 400;
+
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 1. Imagen del taller
-              Container(
-                margin: const EdgeInsets.only(bottom: 32),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.asset(
-                    'assets/images/taller_mecanico.jpg',
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              
-              // 2. Título
-              const Text(
-                'Taller Mecánico',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blueGrey,
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // 3. Botones sociales en fila (Google y Apple)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Botón Google
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SvgPicture.asset(
-                        'assets/icons/google.svg',
-                        height: 32,
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(width: 30),
-                  
-                  // Botón Apple
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () {},
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SvgPicture.asset(
-                        'assets/icons/apple.svg',
-                        height: 32,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // 4. Divisor
-              Row(
-                children: [
-                  const Expanded(child: Divider()),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Text(
-                      'O continúa con',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ),
-                  const Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // 5. Botón Iniciar Sesión
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('Iniciar sesión'),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // 6. Botón Registrarse
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
-                      ),
-                    );
-                  },
-                  child: const Text('Registrarse'),
-                ),
-              ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF1C1C1E),
+              Color(0xFF0D0D0F),
             ],
           ),
         ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmallScreen ? 24 : 40,
+              vertical: 40,
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: screenSize.height - 80, // Garantiza altura mínima
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Imagen destacada siempre completa con tamaño responsivo
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      double imageHeight = screenSize.width > 600 ? 0.4 : 0.3; // Reduce el tamaño de la imagen en pantallas grandes
+                      return Container(
+                        height: screenSize.height * imageHeight,
+                        margin: const EdgeInsets.only(bottom: 40),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.amber.withOpacity(0.25),
+                              blurRadius: 18,
+                              spreadRadius: 1,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/taller_mecanico.jpg'),
+                            fit: BoxFit.cover, // Asegura que la imagen se adapte al contenedor
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // Título metálico más claro
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [
+                        Color(0xFFFFD700), // Dorado claro
+                        Color(0xFFFFC107),
+                        Color(0xFFFFD700),
+                      ],
+                      stops: [0.0, 0.5, 1.0],
+                    ).createShader(bounds),
+                    child: Text(
+                      'TALLER MECÁNICO',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isSmallScreen ? 30 : 36,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                        height: 1.2,
+                        color: Colors.white, // Fallback
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Subtítulo
+                  Text(
+                    'Excelencia en servicio automotriz',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      color: Colors.grey[300],
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Botón Iniciar Sesión
+                  _buildPremiumButton(
+                    context,
+                    text: 'INICIAR SESIÓN',
+                    onPressed: () => _navigateTo(context, const LoginScreen()),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Divisor
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          color: Colors.grey[700],
+                          thickness: 1,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          'O CONTINÚA CON',
+                          style: TextStyle(
+                            color: Colors.grey[500],
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Divider(
+                          color: Colors.grey[700],
+                          thickness: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Botón Registro
+                  _buildPremiumOutlineButton(
+                    context,
+                    text: 'REGISTRARSE',
+                    onPressed: () => _navigateTo(context, const RegisterScreen()),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPremiumButton(
+    BuildContext context, {
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        backgroundColor: const Color(0xFFFF8F00),
+        foregroundColor: Colors.white,
+        elevation: 6,
+        shadowColor: Colors.amber.withOpacity(0.4),
+        textStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+      ),
+      child: Text(text),
+    );
+  }
+
+  Widget _buildPremiumOutlineButton(
+    BuildContext context, {
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 18),
+        side: const BorderSide(
+          color: Color(0xFFFF8F00),
+          width: 2,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        foregroundColor: const Color(0xFFFF8F00),
+        textStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+      ),
+      child: Text(text),
+    );
+  }
+
+  void _navigateTo(BuildContext context, Widget screen) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => screen,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const curve = Curves.easeInOut;
+          final tween = Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: curve));
+
+          return FadeTransition(
+            opacity: animation.drive(tween),
+            child: child,
+          );
+        },
       ),
     );
   }

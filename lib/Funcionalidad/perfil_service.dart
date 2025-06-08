@@ -12,6 +12,6 @@ class PerfilService {
   // Obtener rol del usuario
   Future<String> obtenerRol(String uid) async {
     DocumentSnapshot doc = await _firestore.collection('perfiles').doc(uid).get();
-    return doc.exists ? doc['rol'] : 'usuario'; // Default: usuario
+    return doc.exists ? doc['rol'] : 'usuario'; 
   }
 }
