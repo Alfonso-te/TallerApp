@@ -22,7 +22,7 @@ void main() async {
   // Inicializar notificaciones
   await NotificationService().initialize();
   
-  runApp(const MyApp()); // Agregué const aquí
+  runApp(const MyApp()); 
 }
  
 class MyApp extends StatelessWidget {
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
-        '/dashboard': (context) => const DashboardScreen(), // Agregué const aquí
+        '/dashboard': (context) => const DashboardScreen(), 
         '/add-vehicle': (context) => const AddVehicleScreen(),
         '/vehicle_detail':(context) => const VehicleDetailScreen(vehicleId: '',),
         '/profile': (context) => ProfileScreen(),

@@ -20,7 +20,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
   final _placaController = TextEditingController();
   bool _isLoading = false;
 
-  // Ubicación por defecto según tu DB (0,0)
+  // Ubicación por defecto 
   final LatLng _defaultLocation = const LatLng(0, 0);
 
   Future<void> _guardarVehiculo() async {
@@ -41,7 +41,7 @@ class _AddVehicleScreenState extends State<AddVehicleScreen> {
           'fecha_creacion': FieldValue.serverTimestamp(),
         });
 
-        // Comentado temporalmente hasta resolver el conflicto del NotificationService
+       
         try{
          await NotificationService().showVehiculoRegistradoNotification(
            marca: _marcaController.text.trim(),

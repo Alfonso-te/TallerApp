@@ -172,7 +172,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
           IconButton(
             icon: Icon(Icons.share, color: _goldColor),
             onPressed: () {
-              // Implementar funcionalidad de compartir
+              // implementar funcionalidad de compartir
             },
           ),
         ],
@@ -557,7 +557,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                                 color: _goldColor,
                               ),
                               onTap: () {
-                                // Implementar vista detallada del mantenimiento
+                                
                               },
                             ),
                           ),

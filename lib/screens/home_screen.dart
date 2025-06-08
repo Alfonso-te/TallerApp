@@ -38,7 +38,6 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Imagen destacada siempre completa con tamaño responsivo
                   LayoutBuilder(
                     builder: (context, constraints) {
                       double imageHeight = screenSize.width > 600 ? 0.4 : 0.3; // Reduce el tamaño de la imagen en pantallas grandes
@@ -102,7 +101,7 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 40),
 
-                  // Botón Iniciar Sesión
+                  // Botón Iniciar Sesion
                   _buildPremiumButton(
                     context,
                     text: 'INICIAR SESIÓN',

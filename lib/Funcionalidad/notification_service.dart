@@ -158,7 +158,6 @@ class NotificationService {
   }) {
     if (kIsWeb) {
       try {
-        // Intentar usar la función JavaScript personalizada si existe
         js.context.callMethod('showWebNotification', [title, body, 'icons/Icon-192.png']);
       } catch (e) {
         print('Función JavaScript personalizada no encontrada, usando nativa...');

@@ -46,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _checkLocationPermission() async {
-    // Implementar lógica de permisos si es necesario
+   
   }
 
   Stream<List<Vehicle>> _getVehiclesStream() {

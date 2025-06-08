@@ -173,8 +173,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _changeProfileImage() async {
-    // Implementar lógica para cambiar imagen de perfil
-    // Puedes usar image_picker para seleccionar de galería o cámara
+    // lógica para cambiar imagen de perfil
+    // usar image_picker para seleccionar de galería o cámara
   }
 
   @override
@@ -404,7 +404,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           setState(() {
                             _isEditing = false;
                             _showPasswordFields = false;
-                            _loadUserData(); // Recargar datos originales
+                            _loadUserData(); // actualizar datos originales
                           });
                         },
                         child: Text(
