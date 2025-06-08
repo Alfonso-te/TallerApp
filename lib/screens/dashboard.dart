@@ -15,10 +15,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   GoogleMapController? mapController;
   LatLng? currentLocation = LatLng(0, 0);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String? _userName;
 
   @override
   void initState() {
     super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        setState(() {
+          _userName = userDoc.data()?['name'] ?? user.email?.split('@').first ?? 'Usuario';
+        });
+      }
+    }
   }
 
   Stream<List<Vehicle>> _getVehiclesStream() {
@@ -43,60 +57,111 @@ class _DashboardScreenState extends State<DashboardScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text(vehicleToEdit == null ? 'Nuevo Vehículo' : 'Editar Vehículo'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: marcaController, decoration: InputDecoration(labelText: 'Marca')),
-              TextField(controller: modeloController, decoration: InputDecoration(labelText: 'Modelo')),
-              TextField(controller: anioController, decoration: InputDecoration(labelText: 'Año')),
-              TextField(controller: placaController, decoration: InputDecoration(labelText: 'Placa')),
-            ],
+        return Dialog(
+          backgroundColor: Colors.grey[900],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Color(0xFFD4AF37), width: 2),
           ),
-          actions: [
-            TextButton(
-              child: Text('Cancelar'),
-              onPressed: () => Navigator.pop(context),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  vehicleToEdit == null ? 'NUEVO VEHÍCULO' : 'EDITAR VEHÍCULO',
+                  style: TextStyle(
+                    color: Color(0xFFD4AF37),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 20),
+                _buildFormField(marcaController, 'Marca', Icons.directions_car),
+                SizedBox(height: 16),
+                _buildFormField(modeloController, 'Modelo', Icons.model_training),
+                SizedBox(height: 16),
+                _buildFormField(anioController, 'Año', Icons.calendar_today),
+                SizedBox(height: 16),
+                _buildFormField(placaController, 'Placa', Icons.confirmation_number),
+                SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        side: BorderSide(color: Color(0xFFD4AF37)),
+                      ),
+                      child: Text('CANCELAR'),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFD4AF37),
+                        foregroundColor: Colors.black,
+                      ),
+                      child: Text(vehicleToEdit == null ? 'GUARDAR' : 'ACTUALIZAR'),
+                      onPressed: () async {
+                        final marca = marcaController.text.trim();
+                        final modelo = modeloController.text.trim();
+                        final anio = anioController.text.trim();
+                        final placa = placaController.text.trim();
+
+                        if (marca.isEmpty || modelo.isEmpty || anio.isEmpty || placa.isEmpty) return;
+
+                        final uid = FirebaseAuth.instance.currentUser!.uid;
+                        final location = currentLocation ?? LatLng(0, 0);
+
+                        if (vehicleToEdit == null) {
+                          await FirebaseFirestore.instance.collection('vehiculos').add({
+                            'marca': marca,
+                            'modelo': modelo,
+                            'anio': anio,
+                            'placa': placa,
+                            'location': GeoPoint(location.latitude, location.longitude),
+                            'uid_usuario': uid,
+                            'fecha_creacion': FieldValue.serverTimestamp(),
+                          });
+                        } else {
+                          await FirebaseFirestore.instance.collection('vehiculos').doc(vehicleToEdit.id).update({
+                            'marca': marca,
+                            'modelo': modelo,
+                            'anio': anio,
+                            'placa': placa,
+                          });
+                        }
+
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
-            ElevatedButton(
-              child: Text(vehicleToEdit == null ? 'Guardar' : 'Actualizar'),
-              onPressed: () async {
-                final marca = marcaController.text.trim();
-                final modelo = modeloController.text.trim();
-                final anio = anioController.text.trim();
-                final placa = placaController.text.trim();
-
-                if (marca.isEmpty || modelo.isEmpty || anio.isEmpty || placa.isEmpty) return;
-
-                final uid = FirebaseAuth.instance.currentUser!.uid;
-                final location = currentLocation ?? LatLng(0, 0);
-
-                if (vehicleToEdit == null) {
-                  await FirebaseFirestore.instance.collection('vehiculos').add({
-                    'marca': marca,
-                    'modelo': modelo,
-                    'anio': anio,
-                    'placa': placa,
-                    'location': GeoPoint(location.latitude, location.longitude),
-                    'uid_usuario': uid,
-                    'fecha_creacion': FieldValue.serverTimestamp(),
-                  });
-                } else {
-                  await FirebaseFirestore.instance.collection('vehiculos').doc(vehicleToEdit.id).update({
-                    'marca': marca,
-                    'modelo': modelo,
-                    'anio': anio,
-                    'placa': placa,
-                  });
-                }
-
-                Navigator.pop(context);
-              },
-            ),
-          ],
+          ),
         );
       },
+    );
+  }
+
+  Widget _buildFormField(TextEditingController controller, String label, IconData icon) {
+    return TextField(
+      controller: controller,
+      style: TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Color(0xFFD4AF37)),
+        prefixIcon: Icon(icon, color: Color(0xFFD4AF37)),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFD4AF37)),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFFD4AF37), width: 2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
     );
   }
 
@@ -106,11 +171,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Dashboard'),
-        backgroundColor: Colors.blue,
+        title: Text(
+          'DASHBOARD',
+          style: TextStyle(
+            color: Color(0xFFD4AF37),
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Color(0xFFD4AF37)),
         leading: IconButton(
           icon: Icon(Icons.menu),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -121,45 +197,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onPressed: () => _showVehicleForm(),
           ),
         ],
+        elevation: 0,
       ),
       drawer: _buildDrawer(),
       body: StreamBuilder<List<Vehicle>>(
         stream: _getVehiclesStream(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFFD4AF37),
+              ),
+            );
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No hay vehículos registrados.'));
+            return Center(
+              child: Text(
+                'No hay vehículos registrados.',
+                style: TextStyle(
+                  color: Color(0xFFD4AF37),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            );
           }
 
           final vehicles = snapshot.data!;
 
           return ListView(
-            padding: EdgeInsets.all(16),
+            padding: EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: screenSize.height * 0.03,
+            ),
             children: [
-              SizedBox(
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Color(0xFFD4AF37), width: 2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 height: 300,
-                child: GoogleMap(
-                  onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: currentLocation!,
-                    zoom: 2,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: GoogleMap(
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: currentLocation!,
+                      zoom: 2,
+                    ),
+                    markers: vehicles
+                        .map((v) => Marker(
+                              markerId: MarkerId(v.id),
+                              position: v.location,
+                              infoWindow: InfoWindow(
+                                title: v.marca,
+                                snippet: v.modelo,
+                              ),
+                            ))
+                        .toSet(),
                   ),
-                  markers: vehicles
-                      .map((v) => Marker(
-                            markerId: MarkerId(v.id),
-                            position: v.location,
-                            infoWindow: InfoWindow(
-                              title: v.marca,
-                              snippet: v.modelo,
-                            ),
-                          ))
-                      .toSet(),
                 ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 24),
               ...vehicles.map((v) => _buildVehicleCard(v)),
             ],
           );
@@ -168,82 +268,97 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  child: Icon(Icons.person, size: 30),
+ Widget _buildDrawer() {
+  return Drawer(
+    backgroundColor: Colors.grey[900],
+    child: ListView(
+      padding: EdgeInsets.zero,
+      children: [
+         DrawerHeader(
+          decoration: BoxDecoration(
+            color: Colors.black,
+            border: Border(bottom: BorderSide(color: Color(0xFFD4AF37), width: 2)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Color(0xFFD4AF37),
+                child: Icon(Icons.person, size: 30, color: Colors.black),
+              ),
+              SizedBox(height: 10),
+              Text(
+                _userName ?? 'Usuario',
+                style: TextStyle(
+                  color: Color(0xFFD4AF37),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Usuario',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
+              ),
+              Text(
+                FirebaseAuth.instance.currentUser?.email ?? '',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
                 ),
-                Text(
-                  FirebaseAuth.instance.currentUser?.email ?? '',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          ListTile(
-            leading: Icon(Icons.dashboard),
-            title: Text('Dashboard'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.directions_car),
-            title: Text('Mis Vehículos'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Configuración'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.logout),
-            title: Text('Cerrar sesión'),
-            onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacementNamed('/login');
-            },
-          ),
-        ],
+        ),
+        _buildDrawerItem(Icons.dashboard, 'Dashboard'),
+        _buildDrawerItem(Icons.directions_car, 'Mis Vehículos'),
+        _buildDrawerItem(Icons.settings, 'Configuración'),
+        Divider(color: Color(0xFFD4AF37).withOpacity(0.5)),
+        _buildDrawerItem(Icons.logout, 'Cerrar sesión', isLogout: true),
+      ],
+    ),
+  );
+}
+
+  Widget _buildDrawerItem(IconData icon, String title, {bool isLogout = false}) {
+    return ListTile(
+      leading: Icon(icon, color: Color(0xFFD4AF37)),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+        ),
       ),
+      onTap: () {
+        if (isLogout) {
+          FirebaseAuth.instance.signOut();
+          Navigator.of(context).pushReplacementNamed('/login');
+        } else {
+          Navigator.pop(context);
+        }
+      },
     );
   }
 
   Widget _buildVehicleCard(Vehicle vehicle) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8),
+      color: Colors.grey[900],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Color(0xFFD4AF37), width: 1),
+      ),
+      elevation: 4,
       child: ListTile(
-        title: Text('${vehicle.marca} ${vehicle.modelo}'),
-        subtitle: Text('${vehicle.anio} - ${vehicle.placa}'),
+        title: Text(
+          '${vehicle.marca} ${vehicle.modelo}',
+          style: TextStyle(
+            color: Color(0xFFD4AF37),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          '${vehicle.anio} - ${vehicle.placa}',
+          style: TextStyle(color: Colors.white70),
+        ),
         onTap: () {
           Navigator.push(
             context,
@@ -256,11 +371,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(Icons.edit),
+              icon: Icon(Icons.edit, color: Color(0xFFD4AF37)),
               onPressed: () => _showVehicleForm(vehicleToEdit: vehicle),
             ),
             IconButton(
-              icon: Icon(Icons.delete),
+              icon: Icon(Icons.delete, color: Colors.red[400]),
               onPressed: () => _deleteVehicle(vehicle.id),
             ),
           ],
