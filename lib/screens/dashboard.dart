@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:taller_mecanico/screens/profile_screen.dart';
 import 'package:taller_mecanico/screens/vehicle_detail.screen.dart';
-import 'package:flutter/services.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -20,7 +19,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   LatLng _defaultLocation = const LatLng(0, 0);
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String? _userName;
-  bool _isMapReady = false;
   Set<Marker> _markers = {};
 
   @override
@@ -63,7 +61,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     
     _mapController.complete(controller);
     setState(() {
-      _isMapReady = true;
     });
   }
 
